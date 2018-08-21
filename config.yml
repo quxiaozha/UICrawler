@@ -122,6 +122,14 @@ CRITICAL_ELEMENT:
   IOS_CLICK_XPATH_HEADER: '@visible="true" and string-length(@value)<30'
 
   #注意xpath中的属性值要加双引号""
+  #ANDROID_INIT_ELEMS、IOS LOGIN_ELEMENT下配置登录流程，可以自己加元素，注意在下面加对应的动作
+  #配置的流程会在app启动或重启时依次执行
+  ANDROID_INIT_ELEMS:
+  - ANDROID_USERNAME
+  - ANDROID_PASSWORD
+  - ANDROID_LOGIN_BUTTON
+  - DRAG_ACTION_SAMPLE
+
   ANDROID_USERNAME:
     XPATH: '//*[@resource-id="com.xes.jazhanghui.activity:id/xes_login_username"]'
     ACTION: input
@@ -133,8 +141,19 @@ CRITICAL_ELEMENT:
   ANDROID_LOGIN_BUTTON:
     XPATH: '//*[@resource-id="com.xes.jazhanghui.activity:id/xes_login_button"]'
     ACTION: click
+  DRAG_ACTION_SAMPLE:
+    XPATH: '//*[@resource-id="com.xes.jazhanghui.activity:id/xes_login_gesture"]'
+    #会检查XPATH对应的元素是否存在，可以用作检查当前界面是否为手势密码界面
+    ACTION: drag
+    VALUE: '250,1050,800,1050,800,1550'
+    #每两个数为一组，组成一个坐标，从第一个点依次滑动至各个点
 
   #IOS LOGIN_ELEMENT
+  ANDROID_INIT_ELEMS:
+  - IOS_USERNAME
+  - IOS_PASSWORD
+  - IOS_LOGIN_BUTTON
+
   IOS_USERNAME:
     XPATH: '//*[@type="XCUIElementTypeTextField"]'
     ACTION: input

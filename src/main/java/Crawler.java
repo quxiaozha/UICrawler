@@ -240,7 +240,7 @@ public class Crawler {
                 } else {
                     //开始遍历UI
                     log.info("------------Run in crawler mode----------------");
-                    XPathUtil.getNodesFromFile(Driver.getPageSource(), 0);
+                    XPathUtil.getNodesFromFile(XPathUtil.userLogin(Driver.getPageSource()), 0);
                     //Driver.getPageSource();
                     //String xpath = "//android.widget.Button[@text=\"允许\" and @scrollable=\"false\" and @resource-id=\"android:id/button1\" and @password=\"false\" and @package=\"com.lbe.security.miui\" and @long-clickable=\"false\" and @index=\"1\" and @focused=\"false\" and @focusable=\"true\" and @enabled=\"true\" and @clickable=\"true\" and @class=\"android.widget.Button\" and @checkable=\"false\"]";
                     //Driver.findElement(By.xpath(xpath));

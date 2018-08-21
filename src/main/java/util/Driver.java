@@ -100,6 +100,8 @@ public final class Driver {
             }
 
             Driver.sleep(APP_START_WAIT_TIME);
+            //重启之后登陆
+            XPathUtil.userLogin(getPageSource());
 
         }catch (Exception e){
             log.error("Fail to relaunch app");
@@ -881,7 +883,7 @@ public final class Driver {
 
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
-        capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, udid);
+        capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, ConfigUtil.getDeviceName());
         capabilities.setCapability(MobileCapabilityType.UDID, udid);
         capabilities.setCapability(MobileCapabilityType.NEW_COMMAND_TIMEOUT, 1800);
         capabilities.setCapability("appPackage", appPackage);
@@ -1039,7 +1041,7 @@ public final class Driver {
     }
 
     public static String startLogRecord(){
-        String logName = ConfigUtil.getRootDir() + File.separator + ConfigUtil.getUdid() + "-" + Util.getDatetime() + ".log";
+        String logName = ConfigUtil.getRootDir() + File.separator + ConfigUtil.getDeviceName() + "-" + Util.getDatetime() + ".log";
 
         Runnable newRunnable = () -> {
 
@@ -1186,6 +1188,31 @@ public final class Driver {
         }catch (Exception e){
             log.error("Fail to perform drag operation");
         }
+    }
+
+    public static void drag(List<String> pointsList){
+        log.info(MyLogger.getMethodName());
+        TouchAction dragAction = new TouchAction((PerformsTouchActions) driver);
+        List<PointOption> pointOptionList = new ArrayList<>();
+        try {
+            for(int i = 0; i < pointsList.size(); i = i +2){
+                int x = Integer.valueOf(pointsList.get(i));
+                int y = Integer.valueOf(pointsList.get(i+1));
+                pointOptionList.add(PointOption.point(x, y));
+            }
+            for ( int i = 0; i < pointOptionList.size(); i++ ){
+                if(i == 0){
+                    dragAction.press(pointOptionList.get(i)).waitAction(WaitOptions.waitOptions(Duration.ofMillis(1000)));
+                }else{
+                    dragAction.moveTo(pointOptionList.get(i)).waitAction(WaitOptions.waitOptions(Duration.ofMillis(1000)));
+                }
+            }
+            dragAction.release().perform();
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Fail to perform drag operation");
+        }
+
     }
 
     public static void doubleClickByCoordinate(int x, int y) {
@@ -1373,4 +1400,6 @@ public final class Driver {
         log.info("Battery Info : " + batterInfo);
         return batterInfo.toString();
     }
+
+
 }

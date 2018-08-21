@@ -23,7 +23,7 @@ public class XPathUtil {
     private static Map<String, Long> clickedActivityMap = new HashMap<>();
     private static HashSet<String> set = new LinkedHashSet<>();
     private static DocumentBuilder builder;
-    private static boolean  stop = false;
+    private static boolean stop = false;
     private static String appName;
     private static String appNameXpath;
     private static List<String> packageNameList;
@@ -451,12 +451,12 @@ public class XPathUtil {
 
         log.info("Context: " + Driver.driver.getContextHandles().toString());
 
-        try {
-            xml = userLogin(xml);
-        }catch (Exception e){
-            e.printStackTrace();
-            log.error("Fail to log in!");
-        }
+//        try {
+//            xml = userLogin(xml);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//            log.error("Fail to log in!");
+//        }
 
         //检查运行时间
         long endTime = System.currentTimeMillis();
@@ -803,6 +803,15 @@ public class XPathUtil {
                 element.clear();
                 element.setValue(value.toString());
                 break;
+            case 'd'://drag
+                //'250,1050,800,1050,800,1550'
+                String[] points = ((String)value).split(",");
+                if(points.length%2 != 0){
+                    XPathUtil.log.error("drag value is not configured correctly: " + points.toString());
+                    break;
+                }
+                Driver.drag(Arrays.asList(points));
+                break;
             default:
                 break;
         }
@@ -810,46 +819,38 @@ public class XPathUtil {
 
     public static String userLogin(String xml){
         log.info("Method: userLogin");
+        List<String> elemsList;
+        if (Util.isAndroid()) {
+            elemsList = ConfigUtil.getListValue("ANDROID_INIT_ELEMS");
+        } else {
+            elemsList = ConfigUtil.getListValue("IOS_INIT_ELEMS");
+        }
 
-        if(loginBtnXpath == null){
+        if (null == elemsList || elemsList.size() == 0) {
+            log.info("init elements are not set, skip userLogin.");
             return xml;
         }
+
         try {
-            Document document = builder.parse(new ByteArrayInputStream(xml.getBytes()));
-            NodeList nodes = (NodeList) xpath.evaluate(loginBtnXpath, document, XPathConstants.NODESET);
+            for (String elem : elemsList) {
+                Map<String, Object> map = ConfigUtil.getMapValue(elem);
+                String xpath = map.get("XPATH").toString();
+                String action = map.get("ACTION").toString();
+                String value = String.valueOf(map.get("VALUE"));
+                try {
+                    triggerElementAction(xpath, action, value);
+                } catch (Exception e) {
+                    log.error("Element " + xpath + "is not found.");
 
-            log.info("loginBtnXpath : " +loginBtnXpath + " login element  : " + nodes.getLength());
-
-            if(nodes.getLength() == 1){
-                List<String> list;
-
-                //找到了登录元素
-                if(Util.isAndroid()){
-                    list = new ArrayList<>(Arrays.asList(ConfigUtil.ANDROID_USERNAME, ConfigUtil.ANDROID_PASSWORD, ConfigUtil.ANDROID_LOGIN_BUTTON));
-                }else{
-                    list = new ArrayList<>(Arrays.asList(ConfigUtil.IOS_USERNAME, ConfigUtil.IOS_PASSWORD, ConfigUtil.IOS_LOGIN_BUTTON));
                 }
-
-                for(String item : list){
-                    Map<String,Object> map = ConfigUtil.getMapValue(item);
-                    String xpath = map.get(ConfigUtil.XPATH).toString();
-                    String action =  map.get(ConfigUtil.ACTION).toString();
-                    String value =  String.valueOf(map.get(ConfigUtil.VALUE));
-                    try {
-                        triggerElementAction(xpath, action, value);
-                    }catch (Exception e){
-                        log.error("Element " + xpath + "is not found.");
-                    }
-                }
-
-                //等待新页面初始化
-                Driver.sleep(10);
-                xml = Driver.getPageSource();
             }
-        }catch (Exception e){
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("init elements are not set correctly, userLogin may be failed.");
         }
 
+        //等待新页面初始化
+        Driver.sleep(10);
+        xml = Driver.getPageSource();
         return xml;
     }
 

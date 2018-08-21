@@ -121,7 +121,7 @@ public class ConfigUtil {
     public static ConfigUtil initialize(String file, String udid){
         log.info("Method: initialize");
 
-        rootDir = System.getProperty("user.dir") + File.separator + udid + "-" + Util.getCurrentTimeFormat();
+//        rootDir = System.getProperty("user.dir") + File.separator + ConfigUtil.getDeviceName() + "-" + Util.getCurrentTimeFormat();
 //
 //        if(null != configUtil){
 //            return configUtil;
@@ -161,6 +161,8 @@ public class ConfigUtil {
             perLogEnabled = ConfigUtil.getBooleanValue(PERF_LOG);
             showDomXML = ConfigUtil.getBooleanValue(DOM_DISPLAY,true);
             videoVertial = ConfigUtil.getBooleanValue(VIDEO_VERTICAL,true);
+
+            rootDir = System.getProperty("user.dir") + File.separator + "log" + File.separator + ConfigUtil.getDeviceName() + "-" + Util.getCurrentTimeFormat();
 
             //Create Root dir
             Util.createDir(rootDir);
